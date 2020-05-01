@@ -123,6 +123,7 @@
 #include "AsyncIO/AsyncIOSocket.h"
 #include "AsyncIO/PosixMessageQueueIPC.h"
 #include "AsyncIO/AsyncIOSerial.h"
+#include "main_app.h"
 
 /* Priority definitions for the tasks in the demo application. */
 #define mainLED_TASK_PRIORITY		( tskIDLE_PRIORITY + 1 )
@@ -179,42 +180,44 @@ called, and the number of times a queue send passes. */
 static unsigned long uxCheckTaskHookCallCount = 0;
 static unsigned long uxQueueSendPassedCount = 0;
 static int iSerialReceive = 0;
+
+extern int main_app( void );
 /*-----------------------------------------------------------*/
 
 int main( void )
 {
-	xTaskHandle hUDPTask, hMQTask, hSerialTask;
-	xQueueHandle xUDPReceiveQueue = NULL, xIPCQueue = NULL, xSerialRxQueue = NULL;
-	int iSocketReceive = 0;
-	struct sockaddr_in xReceiveAddress;
-
+//	xTaskHandle hUDPTask, hMQTask, hSerialTask;
+//	xQueueHandle xUDPReceiveQueue = NULL, xIPCQueue = NULL, xSerialRxQueue = NULL;
+//	int iSocketReceive = 0;
+//	struct sockaddr_in xReceiveAddress;
+//
 	/* Initialize hardware and utilities. */
 	vParTestInitialise();
 	vPrintInitialise();
-
-	/* Initialize Receives sockets. */
-	xReceiveAddress.sin_family = AF_INET;
-	xReceiveAddress.sin_addr.s_addr = INADDR_ANY;
-	xReceiveAddress.sin_port = htons( mainUDP_PORT );
-
-	/* Set-up the Receive Queue and open the socket ready to receive. */
-	xUDPReceiveQueue = xQueueCreate( 2, sizeof ( xUDPPacket ) );
-	iSocketReceive = iSocketOpenUDP( vUDPReceiveAndDeliverCallback, xUDPReceiveQueue, &xReceiveAddress );
-
-	/* Remember to open a whole in your Firewall to be able to receive!!! */
-
-	/* Set-up the IPC Message queue. */
-	xIPCQueue = xQueueCreate( 2, sizeof( xMessageObject ) );
-	xMessageQueuePipeHandle = xPosixIPCOpen( "/Local_Loopback", vMessageQueueReceive, xIPCQueue );
-	vPosixIPCEmpty( xMessageQueuePipeHandle );
-
-	/* Set-up the Serial Console Echo task */
-	if ( pdTRUE == lAsyncIOSerialOpen( "/dev/ttyS0", &iSerialReceive ) )
-	{
-		xSerialRxQueue = xQueueCreate( 2, sizeof ( unsigned char ) );
-		(void)lAsyncIORegisterCallback( iSerialReceive, vAsyncSerialIODataAvailableISR, xSerialRxQueue );
-	}
-
+//
+//	/* Initialize Receives sockets. */
+//	xReceiveAddress.sin_family = AF_INET;
+//	xReceiveAddress.sin_addr.s_addr = INADDR_ANY;
+//	xReceiveAddress.sin_port = htons( mainUDP_PORT );
+//
+//	/* Set-up the Receive Queue and open the socket ready to receive. */
+//	xUDPReceiveQueue = xQueueCreate( 2, sizeof ( xUDPPacket ) );
+//	iSocketReceive = iSocketOpenUDP( vUDPReceiveAndDeliverCallback, xUDPReceiveQueue, &xReceiveAddress );
+//
+//	/* Remember to open a whole in your Firewall to be able to receive!!! */
+//
+//	/* Set-up the IPC Message queue. */
+//	xIPCQueue = xQueueCreate( 2, sizeof( xMessageObject ) );
+//	xMessageQueuePipeHandle = xPosixIPCOpen( "/Local_Loopback", vMessageQueueReceive, xIPCQueue );
+//	vPosixIPCEmpty( xMessageQueuePipeHandle );
+//
+//	/* Set-up the Serial Console Echo task */
+//	if ( pdTRUE == lAsyncIOSerialOpen( "/dev/ttyS0", &iSerialReceive ) )
+//	{
+//		xSerialRxQueue = xQueueCreate( 2, sizeof ( unsigned char ) );
+//		(void)lAsyncIORegisterCallback( iSerialReceive, vAsyncSerialIODataAvailableISR, xSerialRxQueue );
+//	}
+//
 	/* CREATE ALL THE DEMO APPLICATION TASKS. */
 	vStartMathTasks( tskIDLE_PRIORITY );
 	vStartPolledQueueTasks( mainQUEUE_POLL_PRIORITY );
@@ -242,16 +245,19 @@ int main( void )
 	vCreateSuicidalTasks( mainCREATOR_TASK_PRIORITY );
 #endif
 
-	/* Create a Task which waits to receive messages and sends its own when it times out. */
-	xTaskCreate( prvUDPTask, "UDPRxTx", configMINIMAL_STACK_SIZE, xUDPReceiveQueue, tskIDLE_PRIORITY + 1, &hUDPTask );
-
-	/* Create a Task which waits to receive messages and sends its own when it times out. */
-	xTaskCreate( prvMessageQueueTask, "MQ RxTx", configMINIMAL_STACK_SIZE, xIPCQueue, tskIDLE_PRIORITY + 1, &hMQTask );
-
-	/* Create a Task which waits to receive bytes. */
-	xTaskCreate( prvSerialConsoleEchoTask, "SerialRx", configMINIMAL_STACK_SIZE, xSerialRxQueue, tskIDLE_PRIORITY + 4, &hSerialTask );
-
+//
+//
+//	/* Create a Task which waits to receive messages and sends its own when it times out. */
+//	xTaskCreate( prvUDPTask, "UDPRxTx", configMINIMAL_STACK_SIZE, xUDPReceiveQueue, tskIDLE_PRIORITY + 1, &hUDPTask );
+//
+//	/* Create a Task which waits to receive messages and sends its own when it times out. */
+//	xTaskCreate( prvMessageQueueTask, "MQ RxTx", configMINIMAL_STACK_SIZE, xIPCQueue, tskIDLE_PRIORITY + 1, &hMQTask );
+//
+//	/* Create a Task which waits to receive bytes. */
+//	xTaskCreate( prvSerialConsoleEchoTask, "SerialRx", configMINIMAL_STACK_SIZE, xSerialRxQueue, tskIDLE_PRIORITY + 4, &hSerialTask );
+	main_app();
 	/* Set the scheduler running.  This function will not return unless a task calls vTaskEndScheduler(). */
+
 	vTaskStartScheduler();
 
 	return 1;
