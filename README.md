@@ -257,3 +257,4 @@ Another way to use binary semaphore is to wake up one task from another task by 
 
 Counting Semaphore
 Counting semaphores are suited for applications in which more than one user is allowed access to a resource. For example, if you have a parking garage of 10 cars, you can allow 10 semaphore access. Each car entering a garage will take 1 semaphore until 10 cars take 10 semaphores and no more cars will be allowed access to the garage.
+
