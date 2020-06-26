@@ -1,4 +1,6 @@
-# Free-RTOS-Linux-Port
+# Free-RTOS-Linux-Port 
+Note this is adapted from: http://socialledge.com/sjsu/index.php/FreeRTOS_Tutorial
+
 What is an OS
 An Embedded Operating System like FreeRTOS is nothing but software that provides multitasking facilities. FreeRTOS allows to run multiple tasks and has a simple scheduler to switch between tasks. Here are some of the FreeRTOS features:
 
